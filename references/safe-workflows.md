@@ -7,7 +7,7 @@ Use the safest route that meets the request:
 1. CSV/TSV import for bulk note creation or updates.
 2. Anki Python `Collection` API for local programmatic edits while Anki is closed.
 3. AnkiConnect or add-on code for edits while Anki is running.
-4. `.apkg` generation for portable decks.
+4. `.apkg` generation for portable decks, with embedded media when the deck references images, audio, video, fonts, or static assets.
 5. Raw SQLite only when the task cannot be done safely through the above paths.
 
 Authoritative references to re-check when exact behavior matters:
@@ -15,6 +15,7 @@ Authoritative references to re-check when exact behavior matters:
 - Anki Manual, files/backups/importing/templates: `https://docs.ankiweb.net/`
 - Anki add-on docs: `https://addon-docs.ankiweb.net/`
 - Anki source: `https://github.com/ankitects/anki`
+- genanki package generation docs: `https://github.com/kerrickstaley/genanki`
 
 ## Locate Collection Data
 
@@ -80,3 +81,12 @@ finally:
 ```
 
 Use `col.update_note(note)` for field edits and `col.set_deck(card_ids, deck_id)` for moving cards. These methods mark changes for sync and trigger Anki's card-generation logic.
+
+## Package Export Pattern
+
+When creating a shareable deck package:
+
+1. Use `.apkg`, not `.akpg`.
+2. Include media when notes reference local files.
+3. Exclude scheduling/review history unless the user is transferring their own learning state.
+4. Validate the package by importing it into a temporary profile before sharing.

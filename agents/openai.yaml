@@ -1,4 +1,4 @@
 interface:
   display_name: "Anki Management"
-  short_description: "Safely edit and format Anki collections"
-  default_prompt: "Use $anki-management to safely add formatted cards to an Anki collection with backups."
+  short_description: "Safely edit, package, and format Anki decks"
+  default_prompt: "Use $anki-management to safely add formatted cards or create an .apkg deck with embedded media."

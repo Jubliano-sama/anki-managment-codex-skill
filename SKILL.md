@@ -1,6 +1,6 @@
 ---
 name: anki-management
-description: Safely manage Anki collections, decks, notes, cards, note types, templates, imports, and collection databases. Use when Codex needs to add or update Anki cards, edit collection.anki2 SQLite databases, generate import files or packages, work with .apkg/.colpkg files, format Anki card HTML/CSS/templates/media, preserve sync safety, create backups, or repair/validate Anki collection changes.
+description: Safely manage Anki collections, decks, notes, cards, note types, templates, imports, package exports, and collection databases. Use when Codex needs to add or update Anki cards, edit collection.anki2 SQLite databases, generate import files, create .apkg deck packages with embedded media, work with .apkg/.colpkg files, format Anki card HTML/CSS/templates/media, preserve sync safety, create backups, or repair/validate Anki collection changes.
 ---
 
 # Anki Management
@@ -15,6 +15,7 @@ Manage Anki content with a safety-first workflow. Prefer Anki's public collectio
 - Always create a timestamped backup before any write. For live user collections, back up `collection.anki2` and `collection.media`; when possible, also create/export a `.colpkg` with media.
 - Never copy, move, or write `collection.anki2` while Anki is open. Ask the user to close Anki or use an API path designed for a running Anki instance.
 - Prefer working on a copy of the collection, then swap it in only after integrity checks and an Anki `Tools > Check Database` pass.
+- Use `.apkg` for Anki deck packages. Treat `.akpg` as a user typo unless they explicitly mean another format.
 - Avoid changing Anki's table schema. Add-on-specific data belongs in supported config/add-on storage, not new columns on core tables.
 - For version-specific behavior, inspect the target collection (`select ver from col`, `sqlite_master`) and check the current official Anki docs/source if available.
 - If a task could be satisfied by generating CSV/TSV or `.apkg` for import, prefer that over editing a user's live database.
@@ -27,7 +28,7 @@ Manage Anki content with a safety-first workflow. Prefer Anki's public collectio
 
 2. Choose the safest write path:
    - For new notes/cards: create CSV/TSV with Anki headers, use Anki's CSV import API, AnkiConnect, or Anki's Python `Collection.add_note()`.
-   - For package generation: create `.apkg` with a reputable generator when the user wants an importable deck instead of direct profile edits.
+   - For package generation: create `.apkg` with Anki's exporter or a reputable generator when the user wants an importable deck instead of direct profile edits. Include media only when media references and files have been validated.
    - For template/styling edits: use Anki's model/notetype APIs or generate clear front/back/CSS snippets for the user to apply.
    - For direct SQLite: use only after confirming Anki is closed, backups exist, schema is inspected, and no supported API/import route fits.
 
@@ -71,6 +72,23 @@ For bulk text import, create UTF-8 CSV/TSV with Anki headers such as:
 What is HTTP 404?	A "not found" response.
 ```
 
+## Creating `.apkg` Packages with Embedded Media
+
+Read [apkg-packaging.md](references/apkg-packaging.md) before generating deck packages with images, audio, video, fonts, or other media.
+
+Preferred paths:
+
+- If starting from an existing Anki deck, use Anki export and enable `Include Media`; omit scheduling unless the user wants review history transferred.
+- If generating a new deck programmatically, prefer `genanki.Package(deck).media_files = [...]` and write `output.apkg`.
+- Do not hand-roll `.apkg` zip internals unless the user specifically asks and the package format has been verified against current Anki behavior.
+
+Media packaging checklist:
+
+1. Use unique media basenames, because Anki media references use filenames, not subdirectory paths.
+2. Put media references in note fields, for example `<img src="diagram.png">` or `[sound:clip.mp3]`.
+3. Include the actual source media paths in the package builder's media list.
+4. Validate by importing into a disposable Anki profile and checking `Tools > Check Media`.
+
 ## Direct SQLite Edits
 
 Use direct SQLite only for controlled, offline collection work. Read [direct-sqlite.md](references/direct-sqlite.md) before doing any raw insert/update/delete.
@@ -100,5 +118,6 @@ Keep formatting portable:
 ## References
 
 - [safe-workflows.md](references/safe-workflows.md): backups, imports, profile paths, and validation.
+- [apkg-packaging.md](references/apkg-packaging.md): `.apkg` creation with embedded media.
 - [direct-sqlite.md](references/direct-sqlite.md): SQLite schema notes and raw editing guardrails.
 - [card-formatting.md](references/card-formatting.md): Anki HTML/CSS/template/media formatting patterns.

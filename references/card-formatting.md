@@ -84,6 +84,23 @@ or:
 
 Place referenced files in `collection.media` or package them with the deck. Do not rely on subdirectories in media. If using custom fonts in templates, prefix font filenames with `_` so media cleanup does not delete them.
 
+
+For `.apkg` generation, the media reference inside a field should use the media basename:
+
+```html
+<img src="cell-diagram.png">
+```
+
+or:
+
+```text
+[sound:pronunciation.mp3]
+```
+
+The package builder must separately include the actual file path. Do not put `<img src="{{Image}}">` in a template and a bare filename in the field; put the full media tag in the field instead.
+
+If source media files live in subdirectories, stage or rename them so their basenames are unique before packaging. Anki fields should not reference `images/cell-diagram.png`.
+
 ## Cloze
 
 Use Anki's cloze note type for deletion cards:
